@@ -91,6 +91,7 @@ function setMapLocation(lat, lng) {
 }
 
 function updateScreen() {
+    console.log('updateScreen()')
     if (settings.solution && settings.address) {
         document.getElementById('geopladdress').innerHTML = geo_location.address
         document.getElementById('geopladdress').style.opacity = '1';

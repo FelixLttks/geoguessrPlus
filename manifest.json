@@ -15,7 +15,8 @@
     ],
     "permissions": [
         "webRequest",
-        "storage"
+        "storage",
+        "webNavigation"
     ],
     "content_scripts": [
         {

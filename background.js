@@ -49,15 +49,15 @@ chrome.webRequest.onCompleted.addListener(async (request) => {
 
 async function sendData(type, data) {
     const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true }); //active: true, 
-    const response = await chrome.tabs.sendMessage(tab.id, { type: type, data: data});
+    const response = await chrome.tabs.sendMessage(tab.id, { type: type, data: data });
     // do something with response here, not outside the function
     console.log(response);
 }
 
 chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse){
+    function (request, sender, sendResponse) {
         // console.log(request.type)
-        switch(request.type){
+        switch (request.type) {
             case 'updated_setting':
                 settings[request.setting] = request.state;
                 sendData('updated_settings', settings);
@@ -68,3 +68,20 @@ chrome.runtime.onMessage.addListener(
         console.log(settings)
     }
 );
+
+chrome.webNavigation.onCompleted.addListener(function (details) {
+
+    chrome.storage.local.get('settings', (str) => {
+        settings = str.settings
+
+        console.log('page loaded')
+        console.log(settings)
+        sendData('updated_settings', settings);
+    });
+
+
+}, {
+    url: [{
+        hostContains: '.geoguessr.com'
+    }],
+});

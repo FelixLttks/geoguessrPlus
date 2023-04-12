@@ -1,4 +1,5 @@
 var toggles = document.querySelectorAll("[data-toggle]");
+var settings = {}
 
 toggles.forEach((ele) => {
     // console.log(ele.dataset)
@@ -9,20 +10,22 @@ toggles.forEach((ele) => {
 
         updateInner(toggle, state)
 
-        // chrome.storage.local.set({ toggle: state });s
+        settings[toggle] = state;
 
         chrome.storage.local.set({ [toggle]: state }).then(() => {
             console.log("Value is set to " + state);
         });
 
-
+        chrome.storage.local.set({ settings: settings }).then(() => {
+            console.log(settings);
+        });
 
         chrome.runtime.sendMessage({ type: 'updated_setting', setting: e.target.dataset.toggle, state: state });
     });
 
-    chrome.storage.local.get([ele.dataset.toggle], (str) => {
-        // console.log(str)
-        ele.checked = str[ele.dataset.toggle];
+    chrome.storage.local.get('settings', (str) => {
+        settings = str.settings
+        ele.checked = str.settings[ele.dataset.toggle];
         updateInner(ele.dataset.toggle, ele.checked)
     });
 })
@@ -49,5 +52,4 @@ function updateInner(toggle, state) {
             inner.style.pointerEvents = 'none'
         }
     }
-    // console.log(inner)
 }
