@@ -17,6 +17,9 @@ To install the extension, follow these steps:
 Once the extension is installed, you can enable or disable each addon individually. We recommend pinning it to your toolbar for easy access.
 
 # Addons
+
+![image](https://user-images.githubusercontent.com/76926119/231593930-79054df2-b3a5-4049-8c32-524606d157dd.png)
+
 The extension comes with the following addons:
 
 - Solution: This is the main switch to disable all direct solution giving.
