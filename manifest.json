@@ -1,0 +1,30 @@
+{
+    "name": "GeoGuesser+",
+    "description": "collection of addons for GeoGuessr",
+    "version": "1.0",
+    "manifest_version": 3,
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": "assets/icon.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "permissions": [
+        "webRequest",
+        "storage"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://*.GeoGuessr.com/*"
+            ],
+            "js": [
+                "content-script.js"
+            ]
+        }
+    ]
+}
