@@ -24,24 +24,10 @@ chrome.runtime.onMessage.addListener(
 
                 fetch("https://game-server.geoguessr.com/api/battle-royale/" + token + "/guess", {
                     "headers": {
-                        // "accept": "*/*",
-                        // "accept-language": "de,de-DE;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-                        // "cache-control": "no-cache",
-                        // "content-type": "application/json",
-                        // "pragma": "no-cache",
-                        // "sec-ch-ua": "\"Microsoft Edge\";v=\"113\", \"Chromium\";v=\"113\", \"Not-A.Brand\";v=\"24\"",
-                        // "sec-ch-ua-mobile": "?0",
-                        // "sec-ch-ua-platform": "\"Windows\"",
-                        // "sec-fetch-dest": "empty",
-                        // "sec-fetch-mode": "cors",
-                        // "sec-fetch-site": "same-site",
-                        // "x-client": "web"
+                        "content-type": "application/json"
                     },
-                    // "referrer": "https://www.geoguessr.com/",
-                    // "referrerPolicy": "strict-origin-when-cross-origin",
                     "body": "{\"lat\":0,\"lng\":0,\"countryCode\":\"" + country + "\",\"roundNumber\":" + request.data + "}",
                     "method": "POST",
-                    // "mode": "cors",
                     "credentials": "include"
                 });
 
@@ -58,8 +44,8 @@ chrome.runtime.onMessage.addListener(
 );
 
 var html = [
-    `<div style=" z-index: 100;position: fixed; top: 4rem; width: 100vw; left: 0;  display: flex; justify-content: center;">
-        <div id="geopladdress" style="opacity: 0; z-index: 100; background-color: #10101c80; height: 2rem; display: flex; justify-content: center; align-items: center; border-radius: 1rem; padding: 0 .5rem; font-weight: 700;">
+    `<div style=" z-index: 100;position: fixed; top: 4rem; width: 100vw; left: 0;  display: flex; justify-content: center; pointer-events: none;">
+        <div id="geopladdress" style="opacity: 0; z-index: 100; background-color: #10101c80; height: 2rem; display: flex; justify-content: center; align-items: center; border-radius: 1rem; padding: 0 .5rem; font-weight: 700; pointer-events: none">
             here is the place for the address
         </div>  
     </div>`,
@@ -175,7 +161,9 @@ document.addEventListener("keypress", async function (event) {
         document.getElementById('geoplfastcountry').value = country;
     }
     else if (keycode == 13) {
-        if (window.location.href.includes('battle-royale') || true) {
+        console.log(window.location.href.includes('battle-royale'))
+        console.log(settings.fastcountry)
+        if (window.location.href.includes('battle-royale') && settings.fastcountry) {
             console.log('sent');
             var token = window.location.href.split('/').pop()
             const response = await chrome.runtime.sendMessage({ type: 'get_round', token: token });
