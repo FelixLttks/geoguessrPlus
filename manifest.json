@@ -23,7 +23,18 @@
                 "https://*.GeoGuessr.com/*"
             ],
             "js": [
+                "leaflet.js",
                 "content-script.js"
+            ]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "leaflet.js"
+            ],
+            "matches": [
+                "*://*.geoguessr.com/*"
             ]
         }
     ]

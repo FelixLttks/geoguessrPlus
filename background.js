@@ -43,17 +43,12 @@ chrome.webRequest.onCompleted.addListener(async (request) => {
             });
 
         }
-
-
-
-
-
     });
 
 }, { urls: ['<all_urls>'] });
 
 async function sendData(type, data) {
-    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true }); //active: true, 
     const response = await chrome.tabs.sendMessage(tab.id, { type: type, data: data});
     // do something with response here, not outside the function
     console.log(response);
@@ -65,6 +60,7 @@ chrome.runtime.onMessage.addListener(
         switch(request.type){
             case 'updated_setting':
                 settings[request.setting] = request.state;
+                sendData('updated_settings', settings);
                 break
             default:
                 break;
