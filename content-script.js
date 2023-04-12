@@ -1,5 +1,6 @@
 var geo_location = {}
 var settings = {}
+var country = 'de';
 
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
@@ -16,6 +17,36 @@ chrome.runtime.onMessage.addListener(
                 console.log(settings)
                 break;
 
+            case 'new_roundnumber':
+                console.log(request)
+
+                var token = window.location.href.split('/').pop()
+
+                fetch("https://game-server.geoguessr.com/api/battle-royale/" + token + "/guess", {
+                    "headers": {
+                        // "accept": "*/*",
+                        // "accept-language": "de,de-DE;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+                        // "cache-control": "no-cache",
+                        // "content-type": "application/json",
+                        // "pragma": "no-cache",
+                        // "sec-ch-ua": "\"Microsoft Edge\";v=\"113\", \"Chromium\";v=\"113\", \"Not-A.Brand\";v=\"24\"",
+                        // "sec-ch-ua-mobile": "?0",
+                        // "sec-ch-ua-platform": "\"Windows\"",
+                        // "sec-fetch-dest": "empty",
+                        // "sec-fetch-mode": "cors",
+                        // "sec-fetch-site": "same-site",
+                        // "x-client": "web"
+                    },
+                    // "referrer": "https://www.geoguessr.com/",
+                    // "referrerPolicy": "strict-origin-when-cross-origin",
+                    "body": "{\"lat\":0,\"lng\":0,\"countryCode\":\"" + country + "\",\"roundNumber\":" + request.data + "}",
+                    "method": "POST",
+                    // "mode": "cors",
+                    "credentials": "include"
+                });
+
+                break;
+
             default:
                 console.log('something went wrong, no type specified')
                 break;
@@ -27,17 +58,23 @@ chrome.runtime.onMessage.addListener(
 );
 
 var html = [
-    `<div style="position: fixed; top: 4rem; width: 100vw; left: 0;  display: flex; justify-content: center;">
-        <div id="geopladdress" style="background-color: #10101c80; height: 2rem; display: flex; justify-content: center; align-items: center; border-radius: 1rem; padding: 0 .5rem; font-weight: 700;">
+    `<div style=" z-index: 100;position: fixed; top: 4rem; width: 100vw; left: 0;  display: flex; justify-content: center;">
+        <div id="geopladdress" style="opacity: 0; z-index: 100; background-color: #10101c80; height: 2rem; display: flex; justify-content: center; align-items: center; border-radius: 1rem; padding: 0 .5rem; font-weight: 700;">
             here is the place for the address
         </div>  
     </div>`,
-    `<div style="position: fixed; bottom: 1rem; width: 100vw; left: 0;  display: flex; justify-content: center; pointer-events: none;">
-        <div id="geoplcountry" style="background-color: #10101c80; height: 2rem; display: flex; justify-content: center; align-items: center; border-radius: 1rem; padding: 0 .5rem; font-weight: 700;">
+    `<div style="position: fixed; z-index: 100; bottom: 1rem; width: 100vw; left: 0;  display: flex; justify-content: center; pointer-events: none;">
+        <div id="geoplcountry" style="opacity: 0; z-index: 100; background-color: #10101c80; height: 2rem; display: flex; justify-content: center; align-items: center; border-radius: 1rem; padding: 0 .5rem; font-weight: 700;">
             here is the place for the address
         </div>  
     </div>`,
-    `<div id="geoplmap" style="height: 175px; width: 200px;position: fixed; bottom: 6rem;right: 2rem; z-index: 100;"></div>`
+    `<div id="geoplmap" style="opacity: 0; height: 175px; width: 200px;position: fixed; bottom: 6rem;right: 2rem; z-index: 100;"></div>`,
+    `<div style="position: fixed; bottom: 1rem; right: 2rem; pointer-events: none; z-index: 100;">
+    
+        <input id="geoplfastcountry" type="text" placeholder="cc" style="width: 200px; text-align: center;">
+      
+</div>
+    `
 ]
 
 var map = undefined;
@@ -92,24 +129,58 @@ function setMapLocation(lat, lng) {
 
 function updateScreen() {
     console.log('updateScreen()')
+    console.log(settings)
+    console.log(geo_location)
     if (settings.solution && settings.address) {
         document.getElementById('geopladdress').innerHTML = geo_location.address
         document.getElementById('geopladdress').style.opacity = '1';
-    }else{
+    } else {
         document.getElementById('geopladdress').style.opacity = '0';
     }
 
     if (settings.solution && settings.country) {
         document.getElementById('geoplcountry').innerHTML = geo_location.country_code.toUpperCase() + ': ' + geo_location.country
         document.getElementById('geoplcountry').style.opacity = '1';
-    }else{
+    } else {
         document.getElementById('geoplcountry').style.opacity = '0';
     }
 
     if (settings.solution && settings.map) {
         setMapLocation(geo_location.lat, geo_location.lng)
         document.getElementById('geoplmap').style.opacity = '1';
-    }else{
+    } else {
         document.getElementById('geoplmap').style.opacity = '0';
     }
+
+    if (settings.fastcountry) {
+        document.getElementById('geoplfastcountry').style.opacity = '1';
+    } else {
+        document.getElementById('geoplfastcountry').style.opacity = '0';
+    }
 }
+
+// function getSegment(url, index) {
+//     return url.replace(/^https?:\/\//, '').split('/')[index];
+// }
+
+
+
+document.addEventListener("keypress", async function (event) {
+    var keycode = event.keyCode
+    console.log(event)
+    if (keycode >= 97 && keycode <= 122) {
+        country += event.key;
+        country = country.substr(1);
+        // console.log(country)
+        document.getElementById('geoplfastcountry').value = country;
+    }
+    else if (keycode == 13) {
+        if (window.location.href.includes('battle-royale') || true) {
+            console.log('sent');
+            var token = window.location.href.split('/').pop()
+            const response = await chrome.runtime.sendMessage({ type: 'get_round', token: token });
+            // do something with response here, not outside the function
+            console.log(response);
+        }
+    }
+});

@@ -1,6 +1,9 @@
 var location = {
     lat: 0,
-    lng: 0
+    lng: 0,
+    address: 'none',
+    country: 'none',
+    country_code: '--'
 }
 
 var settings = {}
@@ -20,7 +23,7 @@ chrome.webRequest.onCompleted.addListener(async (request) => {
 
         // console.log(Math.abs(location.lat - json[1][0][5][0][1][0][2]) + Math.abs(location.lng - json[1][0][5][0][1][0][3]))
 
-        if (location.lat == undefined || location.lng == undefined || Math.abs(location.lat - json[1][0][5][0][1][0][2]) + Math.abs(location.lng - json[1][0][5][0][1][0][3]) > 0.01) {
+        if (location.lat == undefined || location.lng == undefined || Math.abs(location.lat - json[1][0][5][0][1][0][2]) + Math.abs(location.lng - json[1][0][5][0][1][0][3]) > 0.005) {
             location = {
                 lat: json[1][0][5][0][1][0][2],
                 lng: json[1][0][5][0][1][0][3],
@@ -56,12 +59,34 @@ async function sendData(type, data) {
 
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
-        // console.log(request.type)
+        console.log(request)
         switch (request.type) {
             case 'updated_setting':
                 settings[request.setting] = request.state;
                 sendData('updated_settings', settings);
                 break
+            case 'keydown_event':
+                switch (request.data) {
+                    case 'send_country':
+                        sendCountry(request.country_code, request.token);
+                        break;
+                }
+                break;
+            case 'get_round':
+                var roundNumber = -1;
+                var token = request.token
+                fetch('https://game-server.geoguessr.com/api/battle-royale/' + token + '/reconnect').then((r) => {
+                    return r.text();
+                }).then((data) => {
+                    roundNumber = JSON.parse(data).rounds.length
+
+                    console.log(roundNumber)
+                    sendData('new_roundnumber', roundNumber)
+                });
+                
+
+
+                break;
             default:
                 break;
         }
@@ -76,10 +101,9 @@ chrome.webNavigation.onCompleted.addListener(function (details) {
 
         console.log('page loaded')
         console.log(settings)
+        sendData('new_location', location);
         sendData('updated_settings', settings);
     });
-
-
 }, {
     url: [{
         hostContains: '.geoguessr.com'
