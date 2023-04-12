@@ -4,9 +4,9 @@ var location = {
     address: 'none',
     country: 'none',
     country_code: '--'
-}
+};
 
-var settings = {}
+var settings = {};
 
 chrome.webRequest.onCompleted.addListener(async (request) => {
     if (request.method !== 'GET' || request.type !== 'script' || !request.url.includes('GeoPhotoService')) {
