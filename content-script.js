@@ -6,7 +6,7 @@ chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
 
 
-        console.log(request);
+        // console.log(request);
         switch (request.type) {
             case 'new_location':
                 geo_location = request.data;
@@ -14,11 +14,11 @@ chrome.runtime.onMessage.addListener(
 
             case 'updated_settings':
                 settings = request.data;
-                console.log(settings)
+                // console.log(settings)
                 break;
 
             case 'new_roundnumber':
-                console.log(request)
+                // console.log(request)
 
                 var token = window.location.href.split('/').pop()
 
@@ -117,6 +117,11 @@ function updateScreen() {
     console.log('updateScreen()')
     console.log(settings)
     console.log(geo_location)
+
+    if(geo_location == {} || geo_location == undefined){
+        console.log('now location found');
+        return
+    }
     if (settings.solution && settings.address) {
         document.getElementById('geopladdress').innerHTML = geo_location.address
         document.getElementById('geopladdress').style.opacity = '1';
@@ -153,7 +158,7 @@ function updateScreen() {
 
 document.addEventListener("keypress", async function (event) {
     var keycode = event.keyCode
-    console.log(event)
+    console.log(keycode)
     if (keycode >= 97 && keycode <= 122) {
         country += event.key;
         country = country.substr(1);
@@ -170,5 +175,9 @@ document.addEventListener("keypress", async function (event) {
             // do something with response here, not outside the function
             console.log(response);
         }
+    } 
+    else if(keycode == 223){
+        console.log("%c" + geo_location.address, "background-color:#3B3BB1; padding:20px;")
+        console.log("%c" + geo_location.country_code.toUpperCase() + ': ' + geo_location.country, "background-color:#3B3BB1; padding:20px;")
     }
 });

@@ -62,6 +62,9 @@ chrome.runtime.onMessage.addListener(
         console.log(request)
         switch (request.type) {
             case 'updated_setting':
+                if(settings == undefined){
+                    settings = {};
+                }
                 settings[request.setting] = request.state;
                 sendData('updated_settings', settings);
                 break
